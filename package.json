@@ -1,8 +1,8 @@
 {
-  "name": "test-dependency",
-  "productName": "test-dependency",
+  "name": "electron-react-starter-kit",
+  "productName": "Electron starter Kit by Shakil",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "A bulletproof electron starter kit with pdfMake, pdf-to-printer, electron forge and vite (Sumatra pdf issue resolved).",
   "main": ".vite/build/main.js",
   "scripts": {
     "setup-dev": "node tools/setup-dev.mjs",
@@ -14,7 +14,7 @@
   },
   "keywords": [],
   "author": {
-    "name": "shakil",
+    "name": "Shorif Ahamed Shakil",
     "email": "send2shakil@gmail.com"
   },
   "license": "MIT",
