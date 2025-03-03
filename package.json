@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "description": "A bulletproof electron starter kit with pdfMake, pdf-to-printer, electron forge and vite (Sumatra pdf issue resolved).",
   "main": ".vite/build/main.js",
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "scripts": {
     "setup-dev": "node tools/setup-dev.mjs",
     "start": "npm run setup-dev && electron-forge start",
