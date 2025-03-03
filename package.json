@@ -12,11 +12,26 @@
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\""
   },
-  "keywords": [],
+  "keywords": [
+    "electron",
+    "react",
+    "starter-kit",
+    "template",
+    "pdf",
+    "printing"
+  ],
   "author": {
     "name": "Shorif Ahamed Shakil",
     "email": "send2shakil@gmail.com"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sashakil12/electron-starter-kit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Sashakil12/electron-starter-kit/issues"
+  },
+  "homepage": "https://github.com/Sashakil12/electron-starter-kit",
   "license": "MIT",
   "devDependencies": {
     "@electron-forge/cli": "^7.7.0",

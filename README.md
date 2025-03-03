@@ -2,6 +2,17 @@
 
 A modern Electron starter kit with React integration, featuring a clean UI and built-in logging system.
 
+## Template Usage
+
+This repository is set up as a GitHub template. To use it:
+
+1. Click the "Use this template" button at the top of the repository page
+2. Choose a name for your new repository
+3. Select whether to make it public or private
+4. Click "Create repository from template"
+
+Your new repository will be created with all the code from this template, but without the commit history, allowing you to start fresh.
+
 ## Features
 
 - 🚀 Electron with React integration
@@ -21,21 +32,32 @@ A modern Electron starter kit with React integration, featuring a clean UI and b
 
 ### Installation
 
-1. Clone this repository
+1. Create a new repository from this template (see Template Usage above)
+
+2. Clone your new repository
 ```bash
-git clone https://github.com/yourusername/electron-react-starter.git
-cd electron-react-starter
+git clone https://github.com/yourusername/your-new-repo.git
+cd your-new-repo
 ```
 
-2. Install dependencies
+3. Install dependencies
 ```bash
 npm install
 ```
 
-3. Start the development server
+4. Start the development server
 ```bash
 npm run start
 ```
+
+### Customization
+
+After creating your project from this template, you should:
+
+1. Update the `package.json` with your project details
+2. Modify the README.md to reflect your project
+3. Customize the application name and branding
+4. Add your own components and functionality
 
 ## Project Structure
 
