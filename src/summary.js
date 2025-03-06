@@ -2,75 +2,124 @@ import { ipcMain } from "electron";
 import { logger } from "./utils/logger.js";
 import { generatePDF } from "./utils/pdf-generator.js";
 import { printPDF } from "./utils/printer.js";
-import { registerIpcHandler } from "./utils/ipc-handler.js";
+import { registerIpcHandler, unregisterIpcHandler } from "./utils/ipc-handler.js";
+import { 
+  createStyledDocDefinition, 
+  FONT_FAMILIES, 
+  FONT_SIZES, 
+  SPACING 
+} from "./utils/pdf-styles.js";
+
+// Ensure we don't register handlers multiple times
+const HANDLER_REGISTERED = {
+  'print-summary': false,
+  'get-logs': false
+};
 
 // Function to print the summary
 const printSummary = async () => {
   try {
     logger.info("Print summary operation started");
 
-    // Format debt transactions
-    const docDefinition = {
+    // Define the content for the PDF
+    const content = [
+      {
+        alignment: "center",
+        stack: [
+          {
+            text: "সার্বিক হিসাব",
+            style: "title",
+            fontSize: FONT_SIZES.TITLE,
+          },
+        ],
+      },
+      {
+        stack: [{ 
+          text: `প্রিন্ট তাংঃ ${new Date().toLocaleDateString('bn-BD')}`,
+          font: FONT_FAMILIES.BODY
+        }],
+        style: "subtitle",
+      },
+      {
+        text: "ঋণ লেনদেনের হিসাব:",
+        style: "sectionHeader",
+        margin: SPACING.SECTION_MARGIN,
+      },
+      // Sample table with both fonts
+      {
+        table: {
+          headerRows: 1,
+          widths: ['*', '*', '*', '*'],
+          body: [
+            [
+              { text: 'তারিখ', style: 'tableHeader' },
+              { text: 'বিবরণ', style: 'tableHeader' },
+              { text: 'জমা', style: 'tableHeader' },
+              { text: 'খরচ', style: 'tableHeader' }
+            ],
+            [
+              { text: '০১/০১/২০২৫', style: 'tableCell' },
+              { text: 'প্রারম্ভিক জমা', style: 'tableCell' },
+              { text: '১০,০০০', style: 'tableCell' },
+              { text: '-', style: 'tableCell' }
+            ],
+            [
+              { text: '১৫/০১/২০২৫', style: 'tableCell' },
+              { text: 'মাসিক কিস্তি', style: 'tableCell' },
+              { text: '২,০০০', style: 'tableCell' },
+              { text: '-', style: 'tableCell' }
+            ],
+            [
+              { text: '৩০/০১/২০২৫', style: 'tableCell' },
+              { text: 'অগ্রিম প্রদান', style: 'tableCell' },
+              { text: '-', style: 'tableCell' },
+              { text: '৫,০০০', style: 'tableCell' }
+            ]
+          ]
+        },
+        margin: [0, 10, 0, 15]
+      },
+      {
+        text: "মোট হিসাবঃ",
+        style: "subSectionHeader",
+        margin: [0, 10, 0, 5],
+      },
+      {
+        text: "মোট জমাঃ ১২,০০০ টাকা",
+        style: "normal",
+        margin: [10, 2, 0, 2],
+      },
+      {
+        text: "মোট খরচঃ ৫,০০০ টাকা",
+        style: "normal",
+        margin: [10, 2, 0, 2],
+      },
+      {
+        text: "অবশিষ্ট বাকিঃ ৭,০০০ টাকা",
+        style: "normal",
+        bold: true,
+        margin: [10, 2, 0, 10],
+      },
+      {
+        text: " ২০২৫ - সর্বস্বত্ব সংরক্ষিত",
+        style: "footer",
+        margin: [0, 30, 0, 0],
+      }
+    ];
+
+    // Create a styled document definition
+    const docDefinition = createStyledDocDefinition(content, {
       pageSize: "A4",
       pageMargins: [40, 120, 40, 60],
       pageOrientation: "portrait",
-      defaultStyle: {
-        font: 'Li_Ador_Noirrit'
+      // Additional custom options can be added here
+      info: {
+        title: 'সার্বিক হিসাব',
+        author: 'Bengali PDF Generator',
+        subject: 'হিসাব রিপোর্ট',
+        keywords: 'হিসাব, রিপোর্ট, বাংলা',
       },
-      // The fonts are now defined globally in pdf-generator.js
-      content: [
-        {
-          alignment: "center",
-          stack: [
-            {
-              text: "সার্বিক হিসাব",
-              style: "title",
-              fontSize: 14,
-            },
-          ],
-        },
-        {
-          stack: [{ text: `প্রিন্ট তাংঃ ${new Date()}` }],
-          style: "sub-head",
-        },
-        {
-          text: "ঋণ লেনদেনের হিসাব:",
-          style: "sectionHeader",
-          margin: [0, 10, 0, 5],
-        },
-      ],
-      styles: {
-        header: {
-          fontSize: 16,
-          bold: true,
-          margin: [0, 0, 0, 10],
-        },
-        title: {
-          fontSize: 14,
-          margin: [0, 0, 0, 10],
-        },
-        sectionHeader: {
-          fontSize: 12,
-        },
-        tableHeader: {
-          fontSize: 8,
-          bold: true,
-          color: "black",
-          alignment: "center",
-        },
-        tableCell: {
-          fontSize: 10,
-        },
-        footer: {
-          fontSize: 10,
-          italics: true,
-        },
-        subHead: {
-          fontSize: 12,
-          alignment: "center",
-        },
-      },
-    };
+    });
 
     // Generate the PDF
     const pdfPath = await generatePDF(docDefinition, {
@@ -94,22 +143,38 @@ const printSummary = async () => {
   }
 };
 
-// Register IPC handlers
-registerIpcHandler("print-summary", async () => {
-  await printSummary();
-  return { success: true };
-});
+// Register IPC handlers only if not already registered
+if (!HANDLER_REGISTERED['print-summary']) {
+  registerIpcHandler("print-summary", async () => {
+    await printSummary();
+    return { success: true };
+  });
+  HANDLER_REGISTERED['print-summary'] = true;
+}
 
 // Handler for viewing logs - disable request logging to prevent infinite loops
-registerIpcHandler("get-logs", async () => {
-  try {
-    const logs = logger.getRecentLogs();
-    // Ensure we're returning an array
-    return Array.isArray(logs) ? logs : [];
-  } catch (error) {
-    logger.error("Error fetching logs", error);
-    return [];
+if (!HANDLER_REGISTERED['get-logs']) {
+  registerIpcHandler("get-logs", async () => {
+    try {
+      const logs = logger.getRecentLogs();
+      // Ensure we're returning an array
+      return Array.isArray(logs) ? logs : [];
+    } catch (error) {
+      logger.error("Error fetching logs", error);
+      return [];
+    }
+  }, { logRequests: false });
+  HANDLER_REGISTERED['get-logs'] = true;
+}
+
+// Clean up handlers when module is unloaded
+process.on('exit', () => {
+  if (HANDLER_REGISTERED['print-summary']) {
+    unregisterIpcHandler('print-summary');
   }
-}, { logRequests: false });
+  if (HANDLER_REGISTERED['get-logs']) {
+    unregisterIpcHandler('get-logs');
+  }
+});
 
 export default printSummary;

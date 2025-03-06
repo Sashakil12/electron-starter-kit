@@ -15,6 +15,12 @@ pdfMake.fonts = {
     bold: 'Li Ador Noirrit Bold.ttf',
     italics: 'Li Ador Noirrit Italic.ttf',
     bolditalics: 'Li Ador Noirrit Bold Italic.ttf'
+  },
+  Hasan_Jolchobi: {
+    normal: 'Li Hasan Jolchobi Unicode.ttf',
+    bold: 'Li Hasan Jolchobi Unicode Bold.ttf',
+    italics: 'Li Hasan Jolchobi Unicode Italic.ttf',
+    bolditalics: 'Li Hasan Jolchobi Unicode Bold Italic.ttf'
   }
 };
 
