@@ -90,8 +90,21 @@ export function registerIpcHandler(channel, handler, options = {}) {
  * @param {string} channel - The IPC channel to unregister
  */
 export function unregisterIpcHandler(channel) {
-  if (!NEVER_LOG_CHANNELS.includes(channel)) {
-    logger.info(`Unregistering IPC handler for channel: ${channel}`);
+  try {
+    // Avoid using logger during shutdown as it might be destroyed
+    if (!NEVER_LOG_CHANNELS.includes(channel)) {
+      try {
+        logger.info(`Unregistering IPC handler for channel: ${channel}`);
+      } catch (error) {
+        // Silent catch if logger is destroyed
+        console.log(`Unregistering IPC handler for channel: ${channel}`);
+      }
+    }
+    
+    // Remove the handler
+    ipcMain.removeHandler(channel);
+  } catch (error) {
+    // Silent catch during shutdown
+    console.error(`Error removing handler for ${channel}:`, error);
   }
-  ipcMain.removeHandler(channel);
 }

@@ -3,7 +3,7 @@ import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import printSummary from "./summary.js"
 import { logger } from './utils/logger.js';
-import { registerIpcHandler } from './utils/ipc-handler.js';
+import { registerAllHandlers, unregisterAllHandlers } from './utils/ipc-registry.js';
 
 console.log("main file run>>>>>>>>>>>>>>>>>>>>>>>>")
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -95,14 +95,8 @@ logger.warn = function(message, details = null) {
 app.whenReady().then(() => {
   createWindow();
   
-  // Register IPC handlers
-  registerIpcHandler('get-logs', () => {
-    return logger.getRecentLogs();
-  }, { logRequests: false });
-  
-  registerIpcHandler('print-summary', async () => {
-    return await printSummary();
-  });
+  // Register all IPC handlers using the centralized registry
+  registerAllHandlers();
   
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
@@ -119,6 +113,17 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
+  }
+});
+
+// Proper cleanup before app quits
+app.on('before-quit', () => {
+  try {
+    // Unregister all IPC handlers before quitting
+    unregisterAllHandlers();
+    console.log('Successfully unregistered all IPC handlers before quit');
+  } catch (error) {
+    console.error('Error during app cleanup:', error);
   }
 });
 

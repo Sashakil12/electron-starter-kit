@@ -2,19 +2,12 @@ import { ipcMain } from "electron";
 import { logger } from "./utils/logger.js";
 import { generatePDF } from "./utils/pdf-generator.js";
 import { printPDF } from "./utils/printer.js";
-import { registerIpcHandler, unregisterIpcHandler } from "./utils/ipc-handler.js";
 import { 
   createStyledDocDefinition, 
   FONT_FAMILIES, 
   FONT_SIZES, 
   SPACING 
 } from "./utils/pdf-styles.js";
-
-// Ensure we don't register handlers multiple times
-const HANDLER_REGISTERED = {
-  'print-summary': false,
-  'get-logs': false
-};
 
 // Function to print the summary
 const printSummary = async () => {
@@ -142,39 +135,5 @@ const printSummary = async () => {
     throw new Error(`Print summary failed: ${error.message}`);
   }
 };
-
-// Register IPC handlers only if not already registered
-if (!HANDLER_REGISTERED['print-summary']) {
-  registerIpcHandler("print-summary", async () => {
-    await printSummary();
-    return { success: true };
-  });
-  HANDLER_REGISTERED['print-summary'] = true;
-}
-
-// Handler for viewing logs - disable request logging to prevent infinite loops
-if (!HANDLER_REGISTERED['get-logs']) {
-  registerIpcHandler("get-logs", async () => {
-    try {
-      const logs = logger.getRecentLogs();
-      // Ensure we're returning an array
-      return Array.isArray(logs) ? logs : [];
-    } catch (error) {
-      logger.error("Error fetching logs", error);
-      return [];
-    }
-  }, { logRequests: false });
-  HANDLER_REGISTERED['get-logs'] = true;
-}
-
-// Clean up handlers when module is unloaded
-process.on('exit', () => {
-  if (HANDLER_REGISTERED['print-summary']) {
-    unregisterIpcHandler('print-summary');
-  }
-  if (HANDLER_REGISTERED['get-logs']) {
-    unregisterIpcHandler('get-logs');
-  }
-});
 
 export default printSummary;
