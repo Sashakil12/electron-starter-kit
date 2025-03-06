@@ -1,12 +1,22 @@
 import pdfMake from "pdfmake/build/pdfmake.js";
-import pdfFonts from "pdfmake/build/vfs_fonts";
+import { FONTS } from "../../fonts/custom_fonts.js";
 import fs from "fs";
 import os from "os";
 import path from "path";
 import { logger } from "./logger.js";
 
-// Set up pdfMake fonts
-pdfMake.vfs = pdfFonts.vfs;
+// Set up pdfMake virtual file system with our fonts
+pdfMake.vfs = FONTS;
+
+// Define the fonts globally for pdfMake
+pdfMake.fonts = {
+  Li_Ador_Noirrit: {
+    normal: 'Li Ador Noirrit Regular.ttf',
+    bold: 'Li Ador Noirrit Bold.ttf',
+    italics: 'Li Ador Noirrit Italic.ttf',
+    bolditalics: 'Li Ador Noirrit Bold Italic.ttf'
+  }
+};
 
 /**
  * Generates a PDF file with the given document definition
@@ -33,9 +43,11 @@ export async function generatePDF(docDefinition, options = {}) {
 
     return new Promise((resolve, reject) => {
       const stream = fs.createWriteStream(filepath);
-      const pdfDoc = pdfMake.createPdf(docDefinition);
-
-      pdfDoc.getBuffer((buffer) => {
+      
+      // Create a PDF document with the document definition
+      const pdfDocGenerator = pdfMake.createPdf(docDefinition);
+      
+      pdfDocGenerator.getBuffer((buffer) => {
         stream.write(buffer);
         stream.end();
         logger.info("PDF created successfully", { filepath });

@@ -48,6 +48,7 @@
     "@electron/fuses": "^1.8.0",
     "electron": "34.2.0",
     "electron-forge-plugin-dependencies": "^1.0.0",
+    "pdfmake-font-generator": "1.0.1",
     "vite": "6.2.0"
   },
   "dependencies": {

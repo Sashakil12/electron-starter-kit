@@ -14,6 +14,10 @@ const printSummary = async () => {
       pageSize: "A4",
       pageMargins: [40, 120, 40, 60],
       pageOrientation: "portrait",
+      defaultStyle: {
+        font: 'Li_Ador_Noirrit'
+      },
+      // The fonts are now defined globally in pdf-generator.js
       content: [
         {
           alignment: "center",
